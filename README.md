@@ -157,7 +157,7 @@ systemctl disable getty@tty1
 
 2. Download splash.png:
 	
-  `
+  	`
 	sudo wget [image url] & mv [image name] splash.png
 	`
 
@@ -167,51 +167,37 @@ systemctl disable getty@tty1
 	sudo mv splash.png /etc/
 	`
 
-4. Add script:
+4. Add script :
 
 	```
-	sudo nano /etc/asplashscreen
+	sudo nano /etc/systemd/system/splashscreen.service 
 	```
 
 	```
-	do_start () {
-		/usr/bin/fbi -T 1 -noverbose -a /etc/splash.png
-		exit 0
-	}
-	case "$1" in
-		start|"")
-	do_start
-	;;
-	restart|reload|force-reload)
-	echo "Error: argument '$1' not supported" >&2
-	exit 3
-	;;
-	stop)
-	# No-op
-	;;
-	status)
-	exit 0
-	;;
-	*)
-	echo "Usage: asplashscreen [start|stop]" >&2
-	exit 3
-	;;
-	esac
-	:
+	[Unit]
+	Description=Splash screen
+	DefaultDependencies=no
+	After=local-fs.target
+
+	[Service]
+	ExecStart=/usr/bin/fbi -d /dev/fb0 --noverbose -a /etc/splash.png
+	StandardInput=tty
+	StandardOutput=tty
+
+	[Install]
+	WantedBy=sysinit.target
+
+
 	```
+
 
 5. Run:
 
 	```
-	sudo mv asplashscreen /etc/init.d/asplashscreen
+	sudo systemctl enable splashscreen
 	```
 
-6. Run:
 
-	```
-	sudo chmod a+x /etc/init.d/asplashscreen
-	sudo insserv /etc/init.d/asplashscreen
-	```
   
 7. Reboot
   
